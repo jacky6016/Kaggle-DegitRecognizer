@@ -5,14 +5,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 
 import weka.classifiers.functions.SMO;
 import net.sf.javaml.classification.Classifier;
+import net.sf.javaml.classification.KDtreeKNN;
 import net.sf.javaml.classification.KNearestNeighbors;
+import net.sf.javaml.classification.NearestMeanClassifier;
 import net.sf.javaml.classification.evaluation.CrossValidation;
 import net.sf.javaml.classification.evaluation.EvaluateDataset;
 import net.sf.javaml.classification.evaluation.PerformanceMeasure;
+import net.sf.javaml.classification.tree.RandomForest;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.Instance;
 import net.sf.javaml.tools.data.FileHandler;
@@ -32,23 +36,35 @@ public class DigitRecognizer
 		try
 		{
 			/* Pre-process data(remove header lines) */
-			removeFirstLine(trainPath, trainTemp);
-			String headerLine = removeFirstLine(testPath, testTemp);
-			String[] features = headerLine.split(",");
+//			removeFirstLine(trainPath, trainTemp);
+//			String headerLine = removeFirstLine(testPath, testTemp);
+//			String[] features = headerLine.split(",");
 			
 			/* Load training data  */
 			Dataset trainingData = FileHandler.loadDataset(new File(trainTemp), 0, ",");
 			Dataset testData = FileHandler.loadDataset(new File(testTemp), ",");
 
-			/* Build java-ml native classifier */
-			Classifier knn = new KNearestNeighbors(7);
+			/* K-nearest neighbor classifier */
+			Classifier knn = new KNearestNeighbors(1);
 			knn.buildClassifier(trainingData);
 			
-			/* Weka classifier*/
+			/* Weka classifier */
 //			SMO smo = new SMO();
 //			/* Wrap Weka classifier in bridge */
 //			Classifier javamlsmo = new WekaClassifier(smo);
 //			javamlsmo.buildClassifier(trainingData);
+			
+			/* Random forest classifier */
+//			Classifier randomForest = new RandomForest(30, true, 784, new Random());
+//			randomForest.buildClassifier(trainingData);
+			
+			/* Nearest-mean classifier */
+//			Classifier nm = new NearestMeanClassifier();
+//			nm.buildClassifier(trainingData);
+			
+			/* KNN algorithm with KDtree support */
+//			Classifier kd_knn = new KDtreeKNN(1);
+//			kd_knn.buildClassifier(trainingData);
 			
 			/* Doing prediction */
 			try
@@ -78,12 +94,12 @@ public class DigitRecognizer
 				System.exit(0);
 			}
 
-			/* Evaluate classifier performance */
+//			/* Evaluate classifier performance */
 			Map<Object, PerformanceMeasure> pm = EvaluateDataset.testDataset(knn, trainingData);
 			for(Object o:pm.keySet())
 			    System.out.println(o+": "+pm.get(o).getAccuracy());
-			
-			/* Classification cross validation */
+//			
+//			/* Classification cross validation */
 			CrossValidation cv = new CrossValidation(knn);
 			/* Perform cross-validation on the data set */
 			Map<Object, PerformanceMeasure> p = cv.crossValidation(trainingData);
